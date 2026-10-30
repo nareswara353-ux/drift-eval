@@ -1,0 +1,20 @@
+[package]
+name = "drift-math"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Statistical drift tests: eCDF, parallel KS, streaming Wasserstein, chi-square, delta correlation"
+
+[dependencies]
+drift-core.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+rayon.workspace = true
+statrs.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

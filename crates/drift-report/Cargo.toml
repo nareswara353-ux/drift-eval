@@ -1,0 +1,22 @@
+[package]
+name = "drift-report"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "HTML, JSON, and YAML report generation with progress bars for drift-eval"
+
+[dependencies]
+drift-core.workspace = true
+drift-math.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_yaml.workspace = true
+tera.workspace = true
+indicatif.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

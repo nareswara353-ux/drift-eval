@@ -1,0 +1,23 @@
+reference_column: reference
+target_column: target
+
+math:
+  alpha: 0.01
+  enable_ks: true
+  enable_wasserstein: true
+  enable_chi_square: true
+  enable_delta_correlation: true
+  chi_square_bins: 16
+  wasserstein_chunk_size: 2048
+
+parallel:
+  threads: 2
+  chunk_size: 8192
+  use_memory_map: false
+
+report:
+  output_dir: reports-ci
+  emit_html: true
+  emit_json: true
+  emit_yaml: true
+  show_progress: false

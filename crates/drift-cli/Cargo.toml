@@ -1,0 +1,27 @@
+[package]
+name = "drift-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Clap-based CLI entrypoint and configuration loader for drift-eval"
+
+[[bin]]
+name = "drift-eval"
+path = "src/main.rs"
+
+[dependencies]
+drift-core.workspace = true
+drift-math.workspace = true
+drift-parallel.workspace = true
+drift-report.workspace = true
+clap.workspace = true
+anyhow.workspace = true
+serde.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

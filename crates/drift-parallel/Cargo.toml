@@ -1,0 +1,21 @@
+[package]
+name = "drift-parallel"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Parallel executor, memory-mapped loader, chunking, and zero-copy buffers for drift-eval"
+
+[dependencies]
+drift-core.workspace = true
+rayon.workspace = true
+memmap2.workspace = true
+serde.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+drift-math.workspace = true
+drift-report.workspace = true
+tempfile.workspace = true

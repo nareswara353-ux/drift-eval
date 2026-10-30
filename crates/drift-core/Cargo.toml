@@ -10,6 +10,7 @@ description = "Core types, configuration, error handling, and profiler for drift
 
 [dependencies]
 thiserror.workspace = true
+toml.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 serde_yaml.workspace = true
@@ -17,4 +18,5 @@ tracing.workspace = true
 tracing-subscriber.workspace = true
 
 [dev-dependencies]
+drift-math.workspace = true
 tempfile.workspace = true

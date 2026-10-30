@@ -1,43 +1,25 @@
+cat > crates/drift-py/README.MD << 'EOF'
+# drift-py
 
-# drift-eval
+Python bindings for the `drift-eval` statistical drift detection engine, built with PyO3 and Maturin.
 
-High-Performance Statistical Validation & Distribution Drift Evaluator Engine written in Rust.
+## Functions
 
-## Overview
+- `ks_test(reference, target, alpha=0.05)`
+- `wasserstein1(reference, target, chunk_size=4096)`
+- `chi_square_test(reference, target, bins=32, alpha=0.05)`
+- `delta_correlation(reference, target, alpha=0.05)`
+- `run_all(reference, target, alpha=0.05)`
 
-`drift-eval` is a multi-crate Rust workspace that detects distribution drift between reference and target datasets using statistical hypothesis tests and distance metrics. It exposes a CLI, a native Rust library, and Python bindings via PyO3.
+Each function returns a dict with `metric`, `statistic`, `p_value`, `critical`, `verdict`, `sample_size_reference`, and `sample_size_target`.
 
-## Workspace Layout
-
-| Crate | Responsibility |
-|-------|----------------|
-| `drift-core` | Shared types, configuration, error handling, profiler |
-| `drift-math` | eCDF, parallel two-sample KS test, streaming Wasserstein W1, chi-square, delta correlation |
-| `drift-parallel` | Rayon executor, memmap2 loader, chunking, zero-copy buffers |
-| `drift-report` | Tera HTML reports, JSON/YAML exporters, progress bars |
-| `drift-cli` | Clap-based CLI entrypoint and config loader |
-| `drift-py` | PyO3 C-extensions packaged with Maturin |
-
-## Quickstart
+## Build
 
 ```bash
-cargo build --release --workspace
-cargo run --release --bin drift-eval -- run --config configs/default.toml
-Python Bindings
-bash
+python -m venv .venv
+source .venv/bin/activate
 pip install maturin
-maturin develop --release -m crates/drift-py/Cargo.toml
-python -c "import drift_py; print(drift_py.ks_test([1,2,3], [2,3,4]))"
-Statistics Implemented
-Kolmogorov-Smirnov two-sample test (parallel, O(n log n) sort, O(n) scan)
-
-Wasserstein-1 distance (streaming, chunked merge)
-
-Pearson chi-square test of independence
-
-Delta correlation drift for monotonicity checks
-
-Empirical CDF (eCDF) evaluation with binary search
-
+cd crates/drift-py
+maturin develop --release
 License
-Dual-licensed under MIT OR Apache-2.0.
+MIT OR Apache-2.0

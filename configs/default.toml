@@ -1,0 +1,23 @@
+reference_column = "reference"
+target_column = "target"
+
+[math]
+alpha = 0.05
+enable_ks = true
+enable_wasserstein = true
+enable_chi_square = true
+enable_delta_correlation = true
+chi_square_bins = 32
+wasserstein_chunk_size = 4096
+
+[parallel]
+threads = 4
+chunk_size = 16384
+use_memory_map = true
+
+[report]
+output_dir = "reports"
+emit_html = true
+emit_json = true
+emit_yaml = false
+show_progress = true
