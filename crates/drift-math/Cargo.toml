@@ -17,4 +17,9 @@ statrs.workspace = true
 tracing.workspace = true
 
 [dev-dependencies]
+criterion = "0.5"
 tempfile.workspace = true
+
+[[bench]]
+name = "bench_math"
+harness = false

@@ -65,8 +65,10 @@ fn chi_square_stable_for_identical() {
 fn delta_correlation_returns_outcome() {
     let reference = sample("ref", (0..100).map(|i| i as f64).collect());
     let target = sample("tgt", (0..100).map(|i| (i as f64).powi(2)).collect());
-    let outcome = delta_correlation(&reference, &target, 0.05).expect("delta");
-    assert!(outcome.statistic >= 0.0);
+    let ref_mat = vec![reference.values.as_slice(), reference.values.as_slice()];
+    let tgt_mat = vec![target.values.as_slice(), target.values.as_slice()];
+    let outcome = delta_correlation(&ref_mat, &tgt_mat).expect("delta");
+    assert!(outcome.n_ref > 0);
 }
 
 #[test]

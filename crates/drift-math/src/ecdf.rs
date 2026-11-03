@@ -1,5 +1,7 @@
 use drift_core::{DriftError, Result};
 
+use crate::util::par_sorted_copy;
+
 #[derive(Debug, Clone)]
 pub struct EmpiricalCdf {
     sorted: Vec<f64>,
@@ -18,9 +20,9 @@ impl EmpiricalCdf {
                 "encountered non-finite value",
             ));
         }
-        let mut sorted = values.to_vec();
-        sorted.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
-        Ok(Self { sorted })
+        Ok(Self {
+            sorted: par_sorted_copy(values),
+        })
     }
 
     pub fn len(&self) -> usize {
@@ -35,6 +37,7 @@ impl EmpiricalCdf {
         &self.sorted
     }
 
+    /// Right-continuous eCDF: F(x) = |{v <= x}| / n.
     pub fn evaluate(&self, x: f64) -> f64 {
         if self.sorted.is_empty() {
             return 0.0;
@@ -47,16 +50,44 @@ impl EmpiricalCdf {
         queries.iter().map(|q| self.evaluate(*q)).collect()
     }
 
+    /// Exact sup_t |F(t) - G(t)| by a single merge pass (no tolerance-based de-duplication).
     pub fn max_abs_diff(&self, other: &Self) -> f64 {
-        let mut points = Vec::with_capacity(self.sorted.len() + other.sorted.len());
-        points.extend_from_slice(&self.sorted);
-        points.extend_from_slice(&other.sorted);
-        points.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
-        points.dedup_by(|a, b| (*a - *b).abs() < f64::EPSILON);
-
-        points
-            .iter()
-            .map(|x| (self.evaluate(*x) - other.evaluate(*x)).abs())
-            .fold(0.0_f64, f64::max)
+        ks_statistic_sorted(&self.sorted, &other.sorted)
     }
+}
+
+/// Integer numerator of the exact two-sample KS statistic:
+/// `n*m*D = max_x | #{a<=x}*m - #{b<=x}*n |`, evaluated at every distinct pooled value.
+///
+/// Preconditions (not re-checked here): both slices are finite and sorted ascending.
+/// The integer form avoids any rounding inside the maximisation.
+pub fn ks_numerator_sorted(a: &[f64], b: &[f64]) -> u128 {
+    let n = a.len() as u128;
+    let m = b.len() as u128;
+    let (mut i, mut j) = (0usize, 0usize);
+    let mut best: u128 = 0;
+    while i < a.len() || j < b.len() {
+        let x = match (a.get(i), b.get(j)) {
+            (Some(&u), Some(&v)) => u.min(v),
+            (Some(&u), None) => u,
+            (None, Some(&v)) => v,
+            (None, None) => break,
+        };
+        while i < a.len() && a[i] <= x {
+            i += 1;
+        }
+        while j < b.len() && b[j] <= x {
+            j += 1;
+        }
+        best = best.max((i as u128 * m).abs_diff(j as u128 * n));
+    }
+    best
+}
+
+/// Exact KS statistic D of two finite, ascending slices (0.0 if either is empty).
+pub fn ks_statistic_sorted(a: &[f64], b: &[f64]) -> f64 {
+    if a.is_empty() || b.is_empty() {
+        return 0.0;
+    }
+    ks_numerator_sorted(a, b) as f64 / (a.len() as f64 * b.len() as f64)
 }
