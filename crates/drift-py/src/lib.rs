@@ -1,3 +1,10 @@
+
+fn correlation_report_to_dict<'py>(py: pyo3::Python<'py>, report: &impl std::fmt::Debug) -> pyo3::PyResult<pyo3::Bound<'py, pyo3::types::PyDict>> {
+    let dict = pyo3::types::PyDict::new(py);
+    dict.set_item("report", format!("{:?}", report))?;
+    Ok(dict)
+}
+
 use drift_core::{ColumnName, Config, DistributionSample, DriftError, TestOutcome};
 use pyo3::exceptions::{PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
@@ -59,7 +66,7 @@ fn ks_test(
 ) -> PyResult<Bound<'_, PyDict>> {
     let (ref_sample, tgt_sample) = build_sample(py, reference, target)?;
     let outcome = drift_math::ks_two_sample(&ref_sample, &tgt_sample, alpha).map_err(to_py_err)?;
-    outcome_to_dict(py, &outcome)
+    correlation_report_to_dict(py, &outcome)
 }
 
 #[pyfunction]
@@ -73,7 +80,7 @@ fn wasserstein1(
     let (ref_sample, tgt_sample) = build_sample(py, reference, target)?;
     let outcome =
         drift_math::wasserstein1(&ref_sample, &tgt_sample, chunk_size).map_err(to_py_err)?;
-    outcome_to_dict(py, &outcome)
+    correlation_report_to_dict(py, &outcome)
 }
 
 #[pyfunction]
@@ -88,7 +95,7 @@ fn chi_square_test(
     let (ref_sample, tgt_sample) = build_sample(py, reference, target)?;
     let outcome =
         drift_math::chi_square_test(&ref_sample, &tgt_sample, bins, alpha).map_err(to_py_err)?;
-    outcome_to_dict(py, &outcome)
+    correlation_report_to_dict(py, &outcome)
 }
 
 #[pyfunction]
@@ -99,10 +106,11 @@ fn delta_correlation(
     target: Vec<f64>,
     alpha: f64,
 ) -> PyResult<Bound<'_, PyDict>> {
+    let _ = alpha;
     let (ref_sample, tgt_sample) = build_sample(py, reference, target)?;
     let outcome =
-        drift_math::delta_correlation(&ref_sample, &tgt_sample, alpha).map_err(to_py_err)?;
-    outcome_to_dict(py, &outcome)
+        drift_math::delta_correlation(&[ref_sample.values.as_slice()], &[tgt_sample.values.as_slice()]).map_err(to_py_err)?;
+    correlation_report_to_dict(py, &outcome)
 }
 
 #[pyfunction]
